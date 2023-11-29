@@ -1,0 +1,56 @@
+{% extends 'base_auth.html' %}
+{% load static %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/register.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="card shadow-lg">
+    <div class="card-body">
+        <h5 class="card-title text-center py-3">YouYu 用户注册</h5>
+        <form action="{% url 'register' %}" method="post">
+            {% csrf_token %}
+            <div class="form-group inputZone">
+                {% with error=form_obj.username.errors.0 %}
+                <img src="{% static 'img/account.svg' %}" type="image/svg+xml">
+                <input type="text" name="username" value="{{ values.username }}" id="username" placeholder="用户名"
+                    class="form-control {% if error %}is-invalid{%endif%}">
+                <span class="invalid-feedback">{{ error }}</span>
+                {% endwith %}
+            </div>
+            <div class="form-group inputZone">
+                {% with error=form_obj.email.errors.0 %}
+                <img src="{% static 'img/email.svg' %}" type="image/svg+xml">
+                <input type="email" name="email" value="{{ values.email }}" id="email" placeholder="邮箱"
+                    class="form-control {% if error %}is-invalid{%endif%}">
+                <span class="invalid-feedback">{{ error }}</span>
+                {% endwith %}
+            </div>
+            <div class="form-group inputZone">
+                {% with error=form_obj.password.errors.0 %}
+                <img src="{% static 'img/lock.svg' %}" type="image/svg+xml">
+                <input type="password" name="password" value="{{ values.password }}" id="password" placeholder="密码"
+                    class="form-control {% if error %}is-invalid{%endif%}">
+                <span class="invalid-feedback">{{ error }}</span>
+                {% endwith %}
+            </div>
+            <div class="form-group inputZone">
+                {% with error=form_obj.re_password.errors.0 %}
+                <img src="{% static 'img/lock.svg' %}" type="image/svg+xml">
+                <input type="password" name="re_password" value="{{ values.re_password }}" id="re_password" placeholder="确认密码"
+                    class="form-control {% if error %}is-invalid{%endif%}">
+                <span class="invalid-feedback">{{ error }}</span>
+                {% endwith %}
+            </div>
+            <div class="text-center">
+                <input type="submit" value="注册" class="btn btn-primary">
+            </div>
+            <p id="privacy">注册即表示您同意并愿意遵守 <a href="">用户协议</a> 与 <a href="">隐私政策</a></p>
+            <p id="gotologin">已有账户, <a href="{% url 'login' %}">立即登录</a></p>
+        </form>
+    </div>
+</div>
+
+
+{% endblock %}
