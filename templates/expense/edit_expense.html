@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-3">
+    <div class="row">
+        <div class="col-md-10">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'expense' %}">首页</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'expense' %}">支出</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">编辑支出</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="col-md-2">
+            <a href="{% url 'delete-expense' expense.id %}" class="btn btn-danger">删除</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <form action="{% url 'edit-expense' expense.id %}" method="post">
+                        {% csrf_token %}
+                        {% include 'partials/messages.html' %}
+                        <div class="form-group">
+                            <label for="amountField" class="form-label">金额</label>
+                            <input type="number" class="form-control" id="amountField" name="amount" value="{{ values.amount }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="categoryField" class="form-label">类型</label>
+                            <select name="category" id="categoryField" class="form-control">
+                                <option value="" name="category">请选择...</option>
+                                {% for category in categories %}
+                                {% with n=category.name %}
+                                {% if n == values.category %}
+                                <option value="{{ n }}" selected name="category">{{ n }}</option>
+                                {% else %}
+                                <option value="{{ n }}" name="category">{{ n }}</option>
+                                {% endif %}
+                                {% endwith %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="descField" class="form-label">描述</label>
+                            <input type="text" class="form-control" id="descField" name="description" value="{{ values.description }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="dateField" class="form-label">日期</label>
+                            <input type="date" class="form-control" id="dateField" name="date" value="{{ values.date|date:'Y-m-d' }}">
+                        </div>
+                        <input type="submit" value="保存" class="btn btn-primary mt-2">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+{% endblock %}
