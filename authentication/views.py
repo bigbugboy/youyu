@@ -1,8 +1,10 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponseBadRequest
 from django.contrib import auth
 from django.contrib.auth.models import User
 from django.views import View
 from django.contrib import messages
+from django.contrib.auth.tokens import default_token_generator
 
 from .forms import RegisterForm
 
@@ -72,6 +74,40 @@ class AskResetPwdView(View):
             return render(request, 'authentication/ask_reset_password.html', context)
         
         # todo: send the reset-password link to user by email
+        user = User.objects.get(email=email)
+        token = default_token_generator.make_token(user)
+        # todo: uid and link
+        link = f'http://127.0.0.1:9090/authentication/reset_password/{user.pk}/{token}'
+        print('link', link)
         messages.success(request, '重置密码邮件已发您邮箱, 请查收')
+        messages.success(request, link)
         return redirect(to='login')
 
+
+
+class ResetPwdView(View):
+
+    def _get_user_and_check_token(self, uid, token):
+        user = get_object_or_404(User, pk=uid)
+        if not default_token_generator.check_token(user, token):
+            return HttpResponseBadRequest('Invalid token')
+        return user
+
+    def get(self, request, uid, token):
+        user = self._get_user_and_check_token(uid, token)
+        messages.info(request, f'Hello {user.username}, 请输入新密码')
+        return render(request, 'authentication/reset_password.html')
+    
+    def post(self, request, uid, token):
+        user = self._get_user_and_check_token(uid, token)
+        password = request.POST.get('password')
+        re_password = request.POST.get('re_password')
+        if password != re_password:
+            messages.error(request, '两次密码输入不一致')
+            return render(request, 'authentication/reset_password.html')
+
+        user.set_password(password)
+        user.save()
+        messages.success(request, '密码修改成功，请使用新密码登录')
+        return redirect('login')
+    
