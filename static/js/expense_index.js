@@ -1,9 +1,8 @@
-// 基于准备好的dom，初始化echarts实例
-function categoryStats(category_data) {
+function categoryRatioStats(title, data) {
     const myChart = echarts.init(document.getElementById('categoryStats'));
     const option = {
         title: {
-            text: '本月支出类型统计'
+            text: title
         },
         tooltip: {
             trigger: 'item'
@@ -37,7 +36,7 @@ function categoryStats(category_data) {
                 labelLine: {
                     show: false
                 },
-                data: category_data
+                data: data
             }
         ]
     };
@@ -46,54 +45,45 @@ function categoryStats(category_data) {
     myChart.setOption(option);
 }
 
-function dayStats(day_data) {
+
+function dailyAmountStats(title, data) {
     const myChart = echarts.init(document.getElementById('dayStats'));
     const option = {
         title: {
-            text: '本月每日支出统计'
+            text: title
         },
-        xAxis: {
-            type: 'category',
-            boundaryGap: false
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'shadow'
+            }
         },
-        yAxis: {
-            type: 'value',
-            boundaryGap: [0, '30%']
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
         },
-        visualMap: {
-            type: 'piecewise',
-            show: false,
-            dimension: 0,
-            seriesIndex: 0,
-            pieces: [
-                {
-                    gt: 1,
-                    lt: 3,
-                    color: 'rgba(0, 0, 180, 0.4)'
-                },
-                {
-                    gt: 5,
-                    lt: 7,
-                    color: 'rgba(0, 0, 180, 0.4)'
+        xAxis: [
+            {
+                type: 'category',
+                data: data.keys,
+                axisTick: {
+                    alignWithLabel: true
                 }
-            ]
-        },
+            }
+        ],
+        yAxis: [
+            {
+                type: 'value'
+            }
+        ],
         series: [
             {
-                type: 'line',
-                smooth: 0.6,
-                symbol: 'none',
-                lineStyle: {
-                    color: '#5470C6',
-                    width: 5
-                },
-                markLine: {
-                    symbol: ['none', 'none'],
-                    label: { show: false },
-                    data: [{ xAxis: 1 }, { xAxis: 3 }, { xAxis: 5 }, { xAxis: 7 }]
-                },
-                areaStyle: {},
-                data: day_data
+                name: 'Direct',
+                type: 'bar',
+                barWidth: '60%',
+                data: data.values,
             }
         ]
     };
@@ -103,14 +93,12 @@ function dayStats(day_data) {
 }
 
 
-function getStatsDate() {
-    fetch('/expense/this_month_data_stats').then((res) => res.json()).then((data) => {
-        console.log(data.category_stats)
-        console.log(data.day_stats)
-        categoryStats(data.category_stats)
-        dayStats(data.day_stats)
+function getDataSetEcharts() {
+    fetch('/expense/index_stats').then((res) => res.json()).then((data) => {
+        categoryRatioStats('支出比例【本月】', data.category)
+        dailyAmountStats('每日支出【本月】', data.daily)
     })
 }
 
 
-document.onload = getStatsDate()
+document.onload = getDataSetEcharts()
