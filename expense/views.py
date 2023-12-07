@@ -167,28 +167,7 @@ def index_stats(request):
 
 
 @login_required(login_url='login')
-def year_category_stats(request, year):
-    start_day = datetime.date(year=year, month=1, day=1)
-    end_day = datetime.date(year=year, month=12, day=31)
-
-    expenses = Expense.objects.filter(owner=request.user, date__range=(start_day, end_day)).all()
-    categories = Category.objects.all()
-    stats = {c.name: [0 for _ in range(12)] for c in categories}
-    for item in expenses:
-        category = item.category
-        month = item.date.month
-        stats[category][month - 1] += item.amount
-    
-    response_data = [[k] + v for k, v in stats.items()]
-    response_data.insert(0, ['product'] + [str(i + 1) for i in range(12)])
-
-    return JsonResponse({
-        'response_data': response_data
-    })
-
-
-@login_required(login_url='login')
-def expense_summary_index(request):
+def expense_summary(request):
     today = datetime.date.today() 
     start_date = today.replace(year=today.year - 1, month=1, day=1)
     
@@ -219,3 +198,83 @@ def expense_summary_index(request):
     }
 
     return render(request, 'expense/summary_index.html', context)
+
+
+@login_required(login_url='login')
+def expense_s1(request):
+    # 今年各类型支出占比
+    expenses = Expense.objects.filter(
+        owner=request.user, 
+        date__year=datetime.date.today().year
+    ).all()
+
+    # amount per category
+    category_dict = defaultdict(int)
+    for item in expenses:
+        category_dict[item.category] += item.amount
+    
+    data = [{'name': k, 'value': v} for k, v in category_dict.items()]
+    return JsonResponse(data, safe=False)
+
+
+
+@login_required(login_url='login')
+def expense_s2(request):
+    # 今年各类型支出占比
+    expenses = Expense.objects.filter(
+        owner=request.user, 
+        date__year=datetime.date.today().year
+    ).all()
+
+    # amount per category
+    category_dict = defaultdict(int)
+    for item in expenses:
+        category_dict[item.category] += item.amount
+    
+    data = {
+        'captions': list(category_dict.keys()),
+        'values': [category_dict[k] for k in category_dict]
+    }
+    return JsonResponse(data)
+
+
+@login_required(login_url='login')
+def expense_s3(request):
+    # 今年各类型支出占比
+    expenses = Expense.objects.filter(
+        owner=request.user, 
+        date__year=datetime.date.today().year
+    ).all()
+
+    month_expenses = {str(m + 1): 0 for m in range(12)}
+    for item in expenses:
+        month_expenses[str(item.date.month)] += item.amount
+    
+    values = [month_expenses[m] for m in month_expenses]
+    max_value_index = values.index(max(values))
+    data = {
+        'captions': list(month_expenses.keys()),
+        'values': values,
+        'max_value_index': max_value_index,
+    }
+    return JsonResponse(data)
+
+
+@login_required(login_url='login')
+def expense_s4(request, year):
+    expenses = Expense.objects.filter(
+        owner=request.user, 
+        date__year=year
+    ).all()
+
+    month_expenses = {str(m + 1): 0 for m in range(12)}
+    for item in expenses:
+        m = item.date.month
+        for k in month_expenses.keys():
+            if int(k) >= m:
+                month_expenses[k] += item.amount
+    data = {
+        'captions': list(month_expenses.keys()),
+        'values': [month_expenses[k] for k in month_expenses],
+    }
+    return JsonResponse(data)
