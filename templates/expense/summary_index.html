@@ -2,7 +2,6 @@
 {% load static %}
 
 {% block content %}
-<script src="{% static 'js/echarts.min.js' %}"></script>
 
 <div class="container mt-3">
     <div class="row">
@@ -46,7 +45,11 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
+
+
+{% block js %}
+<script src="{% static 'js/echarts.min.js' %}"></script>
 <script src="{% static 'js/expense_summary_index.js' %}"></script>
-
 {% endblock %}

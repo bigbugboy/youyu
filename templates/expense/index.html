@@ -2,7 +2,6 @@
 {% load static %}
 
 {% block content %}
-<script src="{% static 'js/echarts.min.js' %}"></script>
 
 <!-- 面包屑 -->
 <div class="row">
@@ -89,6 +88,12 @@
     </div>
 </div>
 
+{% endblock %}
+
+
+
+{% block js %}
+<script src="{% static 'js/echarts.min.js' %}"></script>
 <script src="{% static 'js/expense_index.js' %}"></script>
 <script src="{% static 'js/expense_delete.js' %}"></script>
 {% endblock %}

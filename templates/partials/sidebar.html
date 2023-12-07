@@ -7,7 +7,7 @@
         </h6>
         <ul class="nav flex-column">
             <li class="nav-item">
-                <a class="nav-link active" href="{% url 'expense' %}">
+                <a class="nav-link {%if request.path_info == '/expense/' %}active{%endif%}" href="{% url 'expense' %}">
                     <i class="bi bi-cart-dash"></i>
                     支出
                 </a>
@@ -25,7 +25,7 @@
         </h6>
         <ul class="nav flex-column mb-2">
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'expense-summary' %}">
+                <a class="nav-link {%if request.path_info == '/expense/expense-summary' %}active{%endif%}" href="{% url 'expense-summary' %}">
                     <i class="bi bi-graph-down-arrow"></i>
                     支出汇总
                 </a>
