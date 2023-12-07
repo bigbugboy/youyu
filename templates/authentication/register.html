@@ -15,7 +15,7 @@
                 {% with error=form_obj.username.errors.0 %}
                 <img src="{% static 'img/account.svg' %}" type="image/svg+xml">
                 <input type="text" name="username" value="{{ values.username }}" id="username" placeholder="用户名"
-                    class="form-control {% if error %}is-invalid{%endif%}">
+                    class="form-control {% if error %}is-invalid{%endif%}" autocomplete="off">
                 <span class="invalid-feedback">{{ error }}</span>
                 {% endwith %}
             </div>
@@ -23,7 +23,7 @@
                 {% with error=form_obj.email.errors.0 %}
                 <img src="{% static 'img/email.svg' %}" type="image/svg+xml">
                 <input type="email" name="email" value="{{ values.email }}" id="email" placeholder="邮箱"
-                    class="form-control {% if error %}is-invalid{%endif%}">
+                    class="form-control {% if error %}is-invalid{%endif%}" autocomplete="off">
                 <span class="invalid-feedback">{{ error }}</span>
                 {% endwith %}
             </div>
@@ -53,4 +53,11 @@
 </div>
 
 
+{% endblock %}
+
+
+
+
+{% block js %}
+<script src="{% static 'js/register.js' %}"></script>
 {% endblock %}

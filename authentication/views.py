@@ -1,10 +1,14 @@
+import json
+
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponseBadRequest
+from django.http import HttpResponseBadRequest, JsonResponse
 from django.contrib import auth
 from django.contrib.auth.models import User
+from django.views.decorators.csrf import csrf_exempt
 from django.views import View
 from django.contrib import messages
 from django.contrib.auth.tokens import default_token_generator
+from email_validator import validate_email, EmailNotValidError
 
 from .forms import RegisterForm
 
@@ -84,7 +88,6 @@ class AskResetPwdView(View):
         return redirect(to='login')
 
 
-
 class ResetPwdView(View):
 
     def _get_user_and_check_token(self, uid, token):
@@ -110,4 +113,33 @@ class ResetPwdView(View):
         user.save()
         messages.success(request, '密码修改成功，请使用新密码登录')
         return redirect('login')
+
+
+@csrf_exempt
+def validate_username(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        username = data['username']
+        if not username.strip():
+            return JsonResponse({'status': 'error', 'msg': '用户名不能为空'}, status=400)
+        if User.objects.filter(username=username.strip()).exists():
+            return JsonResponse({'status': 'error', 'msg': '用户名已存在'}, status=400)
+        else:
+            return JsonResponse({'status': 'success', 'msg': 'OK'})
+
+
+class ValidateEmailView(View):
     
+    def post(self, request):
+        data = json.loads(request.body)
+        email = data['email']
+        if not email.strip():
+            return JsonResponse({'status': 'error', 'msg': '邮箱不能为空'}, status=400)
+        try:
+            validate_email(email, check_deliverability=False)
+        except EmailNotValidError as e:
+            return JsonResponse({'status': 'error', 'msg': '邮箱格式错误'}, status=400)
+        if User.objects.filter(username=email.strip()).exists():
+            return JsonResponse({'status': 'error', 'msg': '邮箱已存在'}, status=400)
+        else:
+            return JsonResponse({'status': 'success', 'msg': 'OK'})
