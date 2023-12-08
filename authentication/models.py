@@ -1,3 +1,14 @@
 from django.db import models
+from django.contrib.auth.models import User
 
-# Create your models here.
+
+
+class UserInfo(models.Model):
+
+    objects: models.query.QuerySet
+
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    avatar = models.FileField(upload_to='avatar/', null=True)
+    avatarBinary = models.BinaryField(null=True)
+    
+

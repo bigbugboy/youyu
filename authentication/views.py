@@ -1,16 +1,18 @@
 import json
 
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponseBadRequest, JsonResponse
+from django.http import HttpRequest, JsonResponse
 from django.contrib import auth
 from django.contrib.auth.models import User
-from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 from django.views import View
 from django.contrib import messages
 from django.contrib.auth.tokens import default_token_generator
 from email_validator import validate_email, EmailNotValidError
 
 from .forms import RegisterForm
+from . import models
 
 
 def register(request):
@@ -115,7 +117,6 @@ class ResetPwdView(View):
         return redirect('login')
 
 
-@csrf_exempt
 def validate_username(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -143,3 +144,70 @@ class ValidateEmailView(View):
             return JsonResponse({'status': 'error', 'msg': '邮箱已存在'}, status=400)
         else:
             return JsonResponse({'status': 'success', 'msg': 'OK'})
+
+
+class ChangePasswordView(View):
+    
+    @method_decorator(login_required(login_url='login'))
+    def get(self, request):
+        return render(request, 'authentication/change_password.html')
+    
+    @method_decorator(login_required(login_url='login'))
+    def post(self, request):
+        old_password = request.POST.get('old-password')
+        if not request.user.check_password(old_password):
+            messages.error(request, '旧密码验证错误')
+            return render(request, 'authentication/change_password.html')
+        
+        new_password = request.POST.get('new-password')
+        re_password = request.POST.get('re-password')
+        if len(new_password) < 6:
+            messages.error(request, '新密码不能少于6位')
+            return render(request, 'authentication/change_password.html')
+        if new_password != re_password:
+            messages.error(request, '新密码两次输入不一致')
+            return render(request, 'authentication/change_password.html')
+        
+        request.user.set_password(new_password)
+        request.user.save()     # 切记不要忘记save
+        messages.success(request, '密码修改成功')
+        return render(request, 'authentication/change_password.html')
+
+
+@method_decorator(login_required(login_url='login'), name='get')
+@method_decorator(login_required(login_url='login'), name='post')
+class UploadAvatar(View):
+
+    def get(self, request):
+        return render(request, 'authentication/upload_avatar.html')
+    
+    def post(self, request):
+        # 演示使用FileField
+        models.UserInfo.objects.update_or_create(
+            user=request.user, 
+            defaults={'avatar': request.FILES.get('avatar')}
+        )
+        messages.success(request, '上传成功')
+        return render(request, 'authentication/upload_avatar.html')    
+
+
+
+@method_decorator(login_required(login_url='login'), name='get')
+@method_decorator(login_required(login_url='login'), name='post')
+class UploadAvatarBinary(View):
+    def get(self, request):
+        return render(request, 'authentication/upload_avatar.html')
+    
+    def post(self, request: HttpRequest):
+        # 演示使用BinaryField
+        from io import BytesIO
+        bio = BytesIO()
+        for chunk in request.FILES.get('avatar').chunks():
+            bio.write(chunk)
+
+        models.UserInfo.objects.update_or_create(
+            user=request.user, 
+            defaults={'avatarBinary': bio.getvalue()}
+        )
+        messages.success(request, '上传成功')
+        return render(request, 'authentication/upload_avatar.html')
