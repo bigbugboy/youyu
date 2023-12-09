@@ -179,11 +179,13 @@ class ChangePasswordView(View):
 class UploadAvatar(View):
 
     def get(self, request):
+        print(111)
+        
         return render(request, 'authentication/upload_avatar.html')
     
     def post(self, request):
         # 演示使用FileField
-        models.UserInfo.objects.update_or_create(
+        userinfo, _ = models.UserInfo.objects.update_or_create(
             user=request.user, 
             defaults={'avatar': request.FILES.get('avatar')}
         )

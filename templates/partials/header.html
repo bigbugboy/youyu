@@ -1,9 +1,27 @@
-<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+<style>
+
+#header-nav {
+    position: relative;
+}
+
+#header-avatar {
+    position: absolute;
+    right: 60px;
+    width: 40px;
+    height: 40px;
+    border: 1px solid gold;
+    border-radius: 20px;
+}
+</style>
+
+
+<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow" id="header-nav">
     <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">YouYu</a>
     <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
         data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
+    <img id="header-avatar" src="/media/{{request.user.userinfo.avatar}}">
     <ul class="navbar-nav px-3">
         <li class="nav-item text-nowrap">
             <a class="nav-link" href="{% url 'logout' %}">退出</a>

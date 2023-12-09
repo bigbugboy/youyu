@@ -42,13 +42,13 @@
         </h6>
         <ul class="nav flex-column mb-2">
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'change-password' %}">
+                <a class="nav-link {%if request.path_info == '/authentication/change-password' %}active{%endif%}" href="{% url 'change-password' %}">
                     <i class="bi bi-person"></i>
                     修改密码
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'upload-avatar' %}">
+                <a class="nav-link {%if request.path_info == '/authentication/upload-avatar'%}active{%endif%}" href="{% url 'upload-avatar' %}">
                     <i class="bi bi-person"></i>
                     上传头像
                 </a>

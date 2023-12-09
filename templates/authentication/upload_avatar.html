@@ -20,11 +20,11 @@
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <form action="{% url 'upload-avatar-binary' %}" method="post" enctype="multipart/form-data">
+                <img src="" id="preview" class="img-thumbnail" style="height: 200px; width: 200px">
+                <form action="{% url 'upload-avatar' %}" method="post" enctype="multipart/form-data">
                     {% include 'partials/sweetalert.html' %}
                     {% csrf_token %}
-                    <!-- TODO: avatar display -->
-                    <img src="" id="preview" class="img-thumbnail" style="height: 200px; width: 200px">
+
                     <div class="form-group">
                         <input type="file" name="avatar" class="orm-control-file" id="avatar">
                     </div>
@@ -44,7 +44,14 @@
 <script>
     const fileInput = document.getElementById('avatar')
     const previewImg = document.getElementById('preview')
+    const imageUrl = '/media/{{ request.user.userinfo.avatar }}'
     previewImg.style.display = 'none'
+
+    if (imageUrl) {
+        previewImg.src = imageUrl;
+        previewImg.style.display = 'block'
+    }
+    
     fileInput.addEventListener('change', function () {
         var file = this.files[0];
         var reader = new FileReader();
