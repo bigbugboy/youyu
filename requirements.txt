@@ -2,3 +2,4 @@ django
 pymysql
 reportlab
 email-validator
+Pillow

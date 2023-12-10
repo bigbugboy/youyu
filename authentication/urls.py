@@ -14,5 +14,6 @@ urlpatterns = [
     path('change-password', views.ChangePasswordView.as_view(), name='change-password'),
     path('upload-avatar', views.UploadAvatar.as_view(), name='upload-avatar'),
     path('upload-avatar-binary', views.UploadAvatarBinary.as_view(), name='upload-avatar-binary'),
+    path('get-verify-code', views.get_verify_code, name='get-verify-code'),
     
 ]
