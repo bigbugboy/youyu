@@ -11,6 +11,7 @@ def home(request):
     return redirect('expense')
 
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home),

@@ -1,7 +1,6 @@
 import random
 import io
 import string
-
 from PIL import Image, ImageColor, ImageFont, ImageDraw, ImageFilter
 
 
@@ -63,3 +62,13 @@ def generate_verify_code():
     buf.seek(0)
 
     return verify_code, buf
+
+
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(",")[0]
+    else:
+        ip = request.META.get("REMOTE_ADDR")
+    return ip
