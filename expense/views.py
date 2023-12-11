@@ -5,6 +5,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import JsonResponse, FileResponse
 from reportlab.pdfgen import canvas
+import openpyxl
 
 from io import BytesIO
 import csv
@@ -110,7 +111,7 @@ def delete_expense(request, id):
 
 
 @login_required(login_url='login')
-def doanload_csv(request):
+def download_csv(request):
     response = HttpResponse(
         content_type="text/csv",
         headers={"Content-Disposition": 'attachment; filename="expense.csv"'},
@@ -125,7 +126,31 @@ def doanload_csv(request):
 
 
 @login_required(login_url='login')
-def doanload_pdf(request):
+def download_excel(request):
+    bio = BytesIO()
+    
+    # 创建一个workbook对象，而且会在workbook中至少创建一个表worksheet
+    wb = openpyxl.Workbook()
+    # 获取当前活跃的worksheet,默认就是第一个worksheet
+    ws = wb.active
+
+    title = ["金额", "类型", "日期", "描述"]
+    data = [
+        [item.amount, item.category, str(item.date), item.description]
+        for item in Expense.objects.filter(owner=request.user).all()
+    ]
+    data.insert(0, title)
+    for row in range(len(data)):
+        for col in range(len(data[0])):
+            ws.cell(row=row + 1, column=col + 1).value = data[row][col]  
+
+    wb.save(bio)
+    bio.seek(0)     # 一定要移动到0，否则没有数据
+    return FileResponse(bio, as_attachment=True, filename="expense.xlsx")
+
+
+@login_required(login_url='login')
+def download_pdf(request):
     bio = BytesIO()
     pdf = canvas.Canvas(bio)
     pdf.drawString(100, 100, 'hello world')

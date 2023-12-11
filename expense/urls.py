@@ -7,8 +7,9 @@ urlpatterns = [
     path('add-expense', views.add_expense, name='add-expense'),
     path('edit-expense/<id>', views.edit_expense, name='edit-expense'),
     path('delete-expense/<id>', views.delete_expense, name='delete-expense'),
-    path('download_csv', views.doanload_csv),
-    path('download_pdf', views.doanload_pdf),
+    path('download_csv', views.download_csv),
+    path('download_pdf', views.download_pdf),
+    path('download_excel', views.download_excel),
     path('index_stats', views.index_stats, name='index_stats'),
     # summary page
     path('expense-summary', views.expense_summary, name='expense-summary'),
