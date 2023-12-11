@@ -1,7 +1,7 @@
 import json
 
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpRequest, JsonResponse
+from django.http import HttpRequest, JsonResponse, FileResponse
 from django.contrib import auth
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -11,8 +11,9 @@ from django.contrib import messages
 from django.contrib.auth.tokens import default_token_generator
 from email_validator import validate_email, EmailNotValidError
 
+
 from .forms import RegisterForm
-from . import models
+from . import models, utils
 
 
 def register(request):
@@ -46,6 +47,10 @@ class LoginView(View):
         context = {'values': request.POST}
         username = request.POST.get('username')
         password = request.POST.get('password')
+        verify_code = request.POST.get('verify')
+        if verify_code.lower() != request.session['verify']:
+            messages.error(request, '验证码不争取')
+            return render(request, 'authentication/login.html', context)
         if not User.objects.filter(username=username).exists():
             messages.error(request, '用户名不存在')
             return render(request, 'authentication/login.html', context)
@@ -179,11 +184,13 @@ class ChangePasswordView(View):
 class UploadAvatar(View):
 
     def get(self, request):
+        print(111)
+        
         return render(request, 'authentication/upload_avatar.html')
     
     def post(self, request):
         # 演示使用FileField
-        models.UserInfo.objects.update_or_create(
+        userinfo, _ = models.UserInfo.objects.update_or_create(
             user=request.user, 
             defaults={'avatar': request.FILES.get('avatar')}
         )
@@ -211,3 +218,12 @@ class UploadAvatarBinary(View):
         )
         messages.success(request, '上传成功')
         return render(request, 'authentication/upload_avatar.html')
+
+
+
+def get_verify_code(request: HttpRequest):
+    verify_code, buff = utils.generate_verify_code()
+
+    # 把验证码保存在session中
+    request.session['verify'] = verify_code.lower()
+    return FileResponse(buff, filename='verify.gif', headers={'Content-Type': 'image/gif'})

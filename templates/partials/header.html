@@ -1,10 +1,42 @@
+<style>
+
+.header-nav {
+    position: relative;
+}
+
+img#header-avatar {
+    position: absolute;
+    top: 0px;
+    right: 120px;
+    height: 48px;
+    padding: 0px;
+}
+
+#header-username {
+    position: absolute;
+    top: 0px;
+    right: 60px;
+    color: white;
+    font-size: 20px;
+}
+
+</style>
+
+
 <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
     <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">YouYu</a>
     <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse"
         data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
+    
     <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap" class="header-nav">
+            <img class="nav-link" id="header-avatar" src="/media/{{request.user.userinfo.avatar}}">
+        </li>
+        <li class="nav-item text-nowrap" class="header-nav">
+            <span class="nav-link" id="header-username">{{request.user.username}}</span>
+        </li>
         <li class="nav-item text-nowrap">
             <a class="nav-link" href="{% url 'logout' %}">退出</a>
         </li>

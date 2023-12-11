@@ -3,6 +3,12 @@
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/login.css' %}">
+<style>
+    #verify-code {
+        width: 100px;
+        top: 0px;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -16,14 +22,20 @@
                 <img src="{% static 'img/account.svg' %}" type="image/svg+xml">
                 <input type="text" name="username" value="{{ values.username }}" id="username" placeholder="用户名"
                     class="form-control" autocomplete="off">
-
             </div>
             <div class="form-group inputZone">
                 <img src="{% static 'img/lock.svg' %}" type="image/svg+xml">
                 <img id="hide-password" src="{% static 'img/eye.svg' %}" type="image/svg+xml">
                 <input type="password" name="password" value="{{ values.password }}" id="password" placeholder="密码"
                     class="form-control">
-
+            </div>
+            <div class="row form-group">
+                <div class="col">
+                    <input type="text" name="verify" value="" placeholder="验证码" class="form-control" autocomplete="off">
+                </div>
+                <div class="col">
+                    <img src="" id="verify-code">
+                </div>
             </div>
             <input type="submit" value="登录" class="btn btn-primary btn-block">
             <p id="gotoregister">没有账户, <a href="{% url 'register' %}">立即注册</a></p>
@@ -39,4 +51,25 @@
 
 {% block js %}
 <script src="{% static 'js/login.js' %}"></script>
+
+<script>
+    const verifyImg = document.getElementById('verify-code')
+    verifyImg.addEventListener('click', getVerifyCode)
+
+    function getVerifyCode() {
+        fetch('/authentication/get-verify-code')
+            .then(response => response.arrayBuffer())
+            .then(arrayBuffer => {
+                console.log(arrayBuffer)
+                const base64String = window.btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)))
+                // 更新img标签的src属性值，以显示图像
+                verifyImg.src = "data:image/gif;base64, " + base64String;
+            });
+    }
+
+    getVerifyCode();
+
+
+</script>
+
 {% endblock %}

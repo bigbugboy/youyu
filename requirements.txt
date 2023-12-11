@@ -3,3 +3,4 @@ pymysql
 reportlab
 email-validator
 openpyxl
+Pillow
